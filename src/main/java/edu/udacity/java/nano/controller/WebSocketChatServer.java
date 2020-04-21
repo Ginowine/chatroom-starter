@@ -1,6 +1,11 @@
-package edu.udacity.java.nano.chat;
+package edu.udacity.java.nano.controller;
 
+import edu.udacity.java.nano.model.Message;
+import edu.udacity.java.nano.model.MessageResponse;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
@@ -14,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see Session   WebSocket Session
  */
 
+@Controller
 @Component
 @ServerEndpoint("/chat")
 public class WebSocketChatServer {
@@ -25,6 +31,13 @@ public class WebSocketChatServer {
 
     private static void sendMessageToAll(String msg) {
         //TODO: add send message method.
+    }
+
+    @MessageMapping("/message")
+    @SendTo("/topic/message")
+    public MessageResponse getMessage(Message message){
+        return new MessageResponse("Hello, " + message.getName());
+
     }
 
     /**
@@ -42,6 +55,7 @@ public class WebSocketChatServer {
     public void onMessage(Session session, String jsonStr) {
         //TODO: add send message.
     }
+
 
     /**
      * Close connection, 1) remove session, 2) update user.
