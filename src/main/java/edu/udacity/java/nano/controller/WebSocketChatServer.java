@@ -8,9 +8,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 
 import javax.websocket.*;
+import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * WebSocket Server
@@ -28,6 +33,9 @@ public class WebSocketChatServer {
      * All chat sessions.
      */
     private static Map<String, Session> onlineSessions = new ConcurrentHashMap<>();
+    private Session session;
+    private static HashMap<String, String> users = new HashMap<>();
+    private static final Set<WebSocketChatServer> socketChatServers = new CopyOnWriteArraySet<>();
 
     private static void sendMessageToAll(String msg) {
         //TODO: add send message method.
@@ -44,8 +52,31 @@ public class WebSocketChatServer {
      * Open connection, 1) add session, 2) add user.
      */
     @OnOpen
-    public void onOpen(Session session) {
+    public void onOpen(Session session, @PathParam("username") String username) throws IOException, EncodeException {
         //TODO: add on open connection.
+        this.session = session;
+        socketChatServers.add(this);
+        users.put(session.getId(), username);
+
+        Message message = new Message();
+        //message.setName(username);
+        broadCast(new MessageResponse("Hello, " + message.getName()));
+
+
+    }
+
+    private void broadCast(MessageResponse messageResponse) throws IOException, EncodeException {
+        socketChatServers.forEach(endpoint ->{
+            synchronized (endpoint){
+                try {
+                    endpoint.session.getBasicRemote()
+                            .sendObject(messageResponse);
+                }catch (IOException | EncodeException e){
+                    e.printStackTrace();
+
+                }
+            }
+        });
     }
 
     /**
