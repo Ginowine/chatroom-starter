@@ -83,8 +83,11 @@ public class WebSocketChatServer {
      * Send message, 1) get username and session, 2) send message to all.
      */
     @OnMessage
-    public void onMessage(Session session, String jsonStr) {
+    public void onMessage(Session session, Message message) throws IOException, EncodeException{
         //TODO: add send message.
+        message.setName(users.get(session.getId()));
+        broadCast(message);
+
     }
 
 
