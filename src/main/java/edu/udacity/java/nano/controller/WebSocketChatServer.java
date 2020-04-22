@@ -1,9 +1,6 @@
 package edu.udacity.java.nano.controller;
 
 import edu.udacity.java.nano.model.Message;
-import edu.udacity.java.nano.model.MessageResponse;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 
@@ -41,12 +38,12 @@ public class WebSocketChatServer {
         //TODO: add send message method.
     }
 
-    @MessageMapping("/message")
-    @SendTo("/topic/message")
-    public MessageResponse getMessage(Message message){
-        return new MessageResponse("Hello, " + message.getName());
-
-    }
+//    @MessageMapping("/message")
+//    @SendTo("/topic/message")
+//    public MessageResponse getMessage(Message message){
+//        return new MessageResponse("Hello, " + message.getName());
+//
+//    }
 
     /**
      * Open connection, 1) add session, 2) add user.
@@ -59,18 +56,19 @@ public class WebSocketChatServer {
         users.put(session.getId(), username);
 
         Message message = new Message();
-        //message.setName(username);
-        broadCast(new MessageResponse("Hello, " + message.getName()));
+        message.setFrom(username);
+        message.setContent("Connected!");
+        broadCast(message);
 
 
     }
 
-    private void broadCast(MessageResponse messageResponse) throws IOException, EncodeException {
+    private void broadCast(Message message) throws IOException, EncodeException {
         socketChatServers.forEach(endpoint ->{
             synchronized (endpoint){
                 try {
                     endpoint.session.getBasicRemote()
-                            .sendObject(messageResponse);
+                            .sendObject(message);
                 }catch (IOException | EncodeException e){
                     e.printStackTrace();
 
@@ -85,7 +83,7 @@ public class WebSocketChatServer {
     @OnMessage
     public void onMessage(Session session, Message message) throws IOException, EncodeException{
         //TODO: add send message.
-        message.setName(users.get(session.getId()));
+        message.setFrom(users.get(session.getId()));
         broadCast(message);
 
     }
@@ -95,8 +93,13 @@ public class WebSocketChatServer {
      * Close connection, 1) remove session, 2) update user.
      */
     @OnClose
-    public void onClose(Session session) {
+    public void onClose(Session session) throws IOException, EncodeException {
         //TODO: add close connection.
+        socketChatServers.remove(this);
+        Message message = new Message();
+        message.setFrom(users.get(session.getId()));
+        message.setContent("Disconnected!");
+        broadCast(message);
     }
 
     /**

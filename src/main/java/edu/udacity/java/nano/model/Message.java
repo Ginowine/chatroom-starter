@@ -5,21 +5,36 @@ package edu.udacity.java.nano.model;
  */
 public class Message {
     // TODO: add message model.
-    private String name;
+    private String from;
+    private String to;
+    private String content;
 
-    public Message(){
-
+    @Override
+    public String toString() {
+        return super.toString();
     }
 
-    public Message(String name){
-        this.name = name;
+    public String getFrom() {
+        return from;
     }
 
-    public String getName() {
-        return name;
+    public void setFrom(String from) {
+        this.from = from;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }
