@@ -34,36 +34,8 @@ public class WebSocketChatServer {
     private static HashMap<String, String> users = new HashMap<>();
     private static final Set<WebSocketChatServer> socketChatServers = new CopyOnWriteArraySet<>();
 
-    private static void sendMessageToAll(String msg) {
+    private static void sendMessageToAll(Message message) throws IOException, EncodeException {
         //TODO: add send message method.
-    }
-
-//    @MessageMapping("/message")
-//    @SendTo("/topic/message")
-//    public MessageResponse getMessage(Message message){
-//        return new MessageResponse("Hello, " + message.getName());
-//
-//    }
-
-    /**
-     * Open connection, 1) add session, 2) add user.
-     */
-    @OnOpen
-    public void onOpen(Session session, @PathParam("username") String username) throws IOException, EncodeException {
-        //TODO: add on open connection.
-        this.session = session;
-        socketChatServers.add(this);
-        users.put(session.getId(), username);
-
-        Message message = new Message();
-        message.setFrom(username);
-        message.setContent("Connected!");
-        broadCast(message);
-
-
-    }
-
-    private void broadCast(Message message) throws IOException, EncodeException {
         socketChatServers.forEach(endpoint ->{
             synchronized (endpoint){
                 try {
@@ -78,13 +50,31 @@ public class WebSocketChatServer {
     }
 
     /**
+     * Open connection, 1) add session, 2) add user.
+     */
+    @OnOpen
+    public void onOpen(Session session, @PathParam("username") String username) throws IOException, EncodeException {
+        //TODO: add on open connection.
+        this.session = session;
+        socketChatServers.add(this);
+        users.put(session.getId(), username);
+
+        Message message = new Message();
+        message.setFrom(username);
+        message.setContent("Connected!");
+        sendMessageToAll(message);
+
+
+    }
+
+    /**
      * Send message, 1) get username and session, 2) send message to all.
      */
     @OnMessage
     public void onMessage(Session session, Message message) throws IOException, EncodeException{
         //TODO: add send message.
         message.setFrom(users.get(session.getId()));
-        broadCast(message);
+        sendMessageToAll(message);
 
     }
 
@@ -99,7 +89,7 @@ public class WebSocketChatServer {
         Message message = new Message();
         message.setFrom(users.get(session.getId()));
         message.setContent("Disconnected!");
-        broadCast(message);
+        sendMessageToAll(message);
     }
 
     /**
