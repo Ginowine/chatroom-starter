@@ -9,9 +9,7 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
@@ -23,13 +21,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 @Controller
 @Component
-@ServerEndpoint(value = "/chat/{username}")
+@ServerEndpoint(value = "/chat/{username}", decoders = MessageDecoder.class, encoders = MessageEncoder.class)
 public class WebSocketChatServer {
 
     /**
      * All chat sessions.
      */
-    private static Map<String, Session> onlineSessions = new ConcurrentHashMap<>();
+    //private static Map<String, Session> onlineSessions = new ConcurrentHashMap<>();
     private Session session;
     private static HashMap<String, String> users = new HashMap<>();
     private static final Set<WebSocketChatServer> socketChatServers = new CopyOnWriteArraySet<>();
