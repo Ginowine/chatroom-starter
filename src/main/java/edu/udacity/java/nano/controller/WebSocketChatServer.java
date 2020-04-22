@@ -23,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 @Controller
 @Component
-@ServerEndpoint("/chat")
+@ServerEndpoint("/chat/{username}")
 public class WebSocketChatServer {
 
     /**
