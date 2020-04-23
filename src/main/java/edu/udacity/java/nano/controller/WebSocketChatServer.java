@@ -57,10 +57,10 @@ public class WebSocketChatServer {
         socketChatServers.add(this);
         users.put(session.getId(), username);
 
-        Message message = new Message();
-        message.setFrom(username);
-        message.setContent("Connected!");
-        sendMessageToAll(message);
+//        Message message = new Message();
+//        message.setFrom(username);
+//        message.setContent("Connected!");
+//        sendMessageToAll(message);
     }
     /**
      * Send message, 1) get username and session, 2) send message to all.
@@ -79,10 +79,12 @@ public class WebSocketChatServer {
     public void onClose(Session session) throws IOException, EncodeException {
         //TODO: add close connection.
         socketChatServers.remove(this);
-        Message message = new Message();
-        message.setFrom(users.get(session.getId()));
-        message.setContent("Disconnected!");
-        sendMessageToAll(message);
+        session.close();
+        users.remove(session.getId());
+//        Message message = new Message();
+//        message.setFrom(users.get(session.getId()));
+//        message.setContent("Disconnected!");
+//        sendMessageToAll(message);
     }
 
     /**
