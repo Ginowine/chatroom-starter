@@ -61,10 +61,7 @@ public class WebSocketChatServer {
         message.setFrom(username);
         message.setContent("Connected!");
         sendMessageToAll(message);
-
-
     }
-
     /**
      * Send message, 1) get username and session, 2) send message to all.
      */
@@ -75,8 +72,6 @@ public class WebSocketChatServer {
         sendMessageToAll(message);
 
     }
-
-
     /**
      * Close connection, 1) remove session, 2) update user.
      */
